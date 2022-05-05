@@ -36,7 +36,7 @@ username_elem.send_keys(os.getenv("USERNAME")) # email freelance-info
 password_elem.send_keys(os.getenv("PASSWORD")) # mot de passe freelance-info
 password_elem.send_keys(Keys.RETURN)
 
-list_keywords = ["développeur", "python", "flask", "backend", "test"]
+list_keywords = ["développeur", "python", "flask", "django", "backend", "test"]
 mandatory_keywords = ["python"]
 param_keyword = ",".join(list_keywords)
 current_page = 1
