@@ -128,9 +128,9 @@ for page in tqdm(range(1, ceil(nb_total_page))):
 
     current_page += 1
 
+my_df.to_csv("report_file.csv", sep=";", encoding="utf-8")
 driver.close()
 # with open(
 #     "report_file.txt", "w", encoding="utf-8"
 # ) as output_file:  # enregistrement des resultats
 #     output_file.write(pprint.pformat(result, indent=4))
-my_df.to_csv("report_file.csv", sep=";", encoding="utf-8")
