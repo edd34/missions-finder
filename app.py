@@ -53,16 +53,19 @@ current_page = 1
 driver.get(
     "https://www.freelance-info.fr/missions?keywords=" + param_keyword + "&page=1"
 )
-nb_total_page = max(
-    [
-        int(word)
-        for word in driver.find_element(by=By.ID, value="mission2").text.split()
-        if word.isdigit()
-    ]
+nb_total_page = (
+    max(
+        [
+            int(word)
+            for word in driver.find_element(by=By.ID, value="mission2").text.split()
+            if word.isdigit()
+        ]
+    )
+    / 10
 )
 signal(SIGINT, handler)
-# while True:
-for page in tqdm(range(1, ceil(nb_total_page / 10))):
+
+for page in tqdm(range(1, ceil(nb_total_page))):
     print(page)
     driver.get(
         "https://www.freelance-info.fr/missions?keywords="
