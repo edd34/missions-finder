@@ -148,3 +148,4 @@ cython_debug/
 .history/
 
 *.txt
+*.csv
