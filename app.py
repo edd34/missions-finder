@@ -11,6 +11,8 @@ from tqdm import tqdm
 from dotenv import load_dotenv
 from utils import is_subseq
 from webdriver_manager.firefox import GeckoDriverManager
+from selenium.webdriver.common.by import By
+
 
 load_dotenv()
 
@@ -33,8 +35,8 @@ def handler(signal_received, frame):
 
 driver.get("https://www.freelance-info.fr/login-page.php")
 
-username_elem = driver.find_element_by_id("_username")
-password_elem = driver.find_element_by_id("_password")
+username_elem = driver.find_element(by=By.ID, value="_username")
+password_elem = driver.find_element(by=By.ID, value="_password")
 
 username_elem.clear()
 password_elem.clear()
@@ -44,7 +46,7 @@ password_elem.send_keys(os.getenv("PASSWORD"))  # mot de passe freelance-info
 password_elem.send_keys(Keys.RETURN)
 
 list_keywords = ["développeur", "python", "flask", "django", "backend", "test"]
-mandatory_keywords = ["python"]
+mandatory_keywords = ["python", "django", "flask"]
 param_keyword = ",".join(list_keywords)
 current_page = 1
 driver.get(
@@ -53,7 +55,7 @@ driver.get(
 nb_total_page = max(
     [
         int(word)
-        for word in driver.find_element_by_id("mission2").text.split()
+        for word in driver.find_element(by=By.ID, value="mission2").text.split()
         if word.isdigit()
     ]
 )
@@ -68,30 +70,36 @@ for page in tqdm(range(1, ceil(nb_total_page / 10))):
         + str(page)
     )
     pagination_xpath = "/html/body/div[2]/main/div/div/div[1]/nav/ul"
-    list_pagination = driver.find_element_by_xpath(
-        pagination_xpath
-    ).find_elements_by_xpath("./*")
+    list_pagination = driver.find_element(
+        by=By.XPATH, value=pagination_xpath
+    ).find_elements(by=By.XPATH, value="./*")
 
-    list_offers = driver.find_elements_by_id("offre")
+    list_offers = driver.find_elements(by=By.ID, value="offre")
     link_list = [
-        offer.find_element_by_css_selector(".rtitre.filter-link").get_attribute("href")
+        offer.find_element(
+            by=By.CSS_SELECTOR, value=".rtitre.filter-link"
+        ).get_attribute("href")
         for offer in list_offers
     ]
     for link in link_list:
         driver.get(link)
-        abstract = driver.find_element_by_css_selector(".col-8.left")
+        abstract = driver.find_element(by=By.CSS_SELECTOR, value=".col-8.left")
         list_abstract_content_line = abstract.text.split("\n")
         list_abstract_content_split = [
             elem.split(":") for elem in list_abstract_content_line
         ]
         payload = {}
-        payload["title"] = driver.find_element_by_class_name("title-grand").text
+        payload["title"] = driver.find_element(
+            by=By.CLASS_NAME, value="title-grand"
+        ).text
         payload["lieu"] = list_abstract_content_split[0][1].strip()
         payload["durée"] = list_abstract_content_split[1][1].strip()
         payload["tarif"] = list_abstract_content_split[2][1].strip()
         payload["télétravail"] = list_abstract_content_split[3][1].strip()
         payload["début"] = list_abstract_content_split[4][1].strip()
-        payload["description"] = driver.find_element_by_id("description-mission").text
+        payload["description"] = driver.find_element(
+            by=By.ID, value="description-mission"
+        ).text
         payload["link"] = link
 
         if is_subseq(mandatory_keywords, [payload["description"].lower()]):
