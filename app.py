@@ -31,6 +31,7 @@ def handler(signal_received, frame):
         "report_file.txt", "w", encoding="utf-8"
     ) as output_file:  # enregistrement des resultats
         output_file.write(pprint.pformat(result, indent=4))
+    driver.close()
     exit(0)
 
 
