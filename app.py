@@ -13,11 +13,24 @@ from utils import is_subseq
 from webdriver_manager.firefox import GeckoDriverManager
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service
+import pandas as pd
+from datetime import datetime
 
 
 load_dotenv()
 
 result = []
+col_names = [
+    "lieu",
+    "duree",
+    "tarif",
+    "teletravail",
+    "debut",
+    "description",
+    "date",
+    "link",
+]
+my_df = pd.DataFrame(columns=col_names)
 options = Options()
 options.headless = True
 driver = webdriver.Firefox(
@@ -27,10 +40,7 @@ driver = webdriver.Firefox(
 
 def handler(signal_received, frame):
     print("SIGINT or CTRL-C detected. Exiting gracefully")
-    with open(
-        "report_file.txt", "w", encoding="utf-8"
-    ) as output_file:  # enregistrement des resultats
-        output_file.write(pprint.pformat(result, indent=4))
+    my_df.to_csv("report_file.csv", sep=";", encoding="utf-8")
     driver.close()
     exit(0)
 
@@ -98,26 +108,29 @@ for page in tqdm(range(1, ceil(nb_total_page))):
             by=By.CLASS_NAME, value="title-grand"
         ).text
         payload["lieu"] = list_abstract_content_split[0][1].strip()
-        payload["durée"] = list_abstract_content_split[1][1].strip()
+        payload["duree"] = list_abstract_content_split[1][1].strip()
         payload["tarif"] = list_abstract_content_split[2][1].strip()
-        payload["télétravail"] = list_abstract_content_split[3][1].strip()
-        payload["début"] = list_abstract_content_split[4][1].strip()
+        payload["teletravail"] = list_abstract_content_split[3][1].strip()
+        payload["debut"] = list_abstract_content_split[4][1].strip()
         payload["description"] = driver.find_element(
             by=By.ID, value="description-mission"
         ).text
         payload["link"] = link
+        tmp_date = driver.find_element(by=By.ID, value="publié").text.split(" ")[2]
+        payload["date"] = datetime.strptime(tmp_date, "%d/%m/%Y")
+        tmp_df = pd.DataFrame(columns=col_names)
+        # TODO on recupere toutes les donnees puis on filtre ensuite
+        my_df.loc[len(my_df)] = payload
 
-        if is_subseq(mandatory_keywords, [payload["description"].lower()]):
-            print(payload["title"], payload["link"])
-            result.append(payload)
-
-    # if list_pagination[-1].get_attribute("class") == "page-item active": #si derniere page atteinte, fin du programme
-    #     break
+        # if is_subseq(mandatory_keywords, [payload["description"].lower()]):
+        #     print(payload["title"], payload["link"])
+        #     result.append(payload)
 
     current_page += 1
 
 driver.close()
-with open(
-    "report_file.txt", "w", encoding="utf-8"
-) as output_file:  # enregistrement des resultats
-    output_file.write(pprint.pformat(result, indent=4))
+# with open(
+#     "report_file.txt", "w", encoding="utf-8"
+# ) as output_file:  # enregistrement des resultats
+#     output_file.write(pprint.pformat(result, indent=4))
+my_df.to_csv("report_file.csv", sep=";", encoding="utf-8")
