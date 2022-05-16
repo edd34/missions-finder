@@ -12,6 +12,7 @@ from dotenv import load_dotenv
 from utils import is_subseq
 from webdriver_manager.firefox import GeckoDriverManager
 from selenium.webdriver.common.by import By
+from selenium.webdriver.chrome.service import Service
 
 
 load_dotenv()
@@ -20,7 +21,7 @@ result = []
 options = Options()
 options.headless = True
 driver = webdriver.Firefox(
-    options=options, executable_path=GeckoDriverManager().install()
+    options=options, service=Service(GeckoDriverManager().install())
 )
 
 
