@@ -40,7 +40,9 @@ driver = webdriver.Firefox(
 
 def handler(signal_received, frame):
     print("SIGINT or CTRL-C detected. Exiting gracefully")
-    my_df.to_csv("report_file.csv", sep=";", encoding="utf-8")
+    my_df.to_csv(
+        "report_file" + str(datetime.now()) + ".csv", sep=";", encoding="utf-8"
+    )
     driver.close()
     exit(0)
 
@@ -128,7 +130,7 @@ for page in tqdm(range(1, ceil(nb_total_page))):
 
     current_page += 1
 
-my_df.to_csv("report_file.csv", sep=";", encoding="utf-8")
+my_df.to_csv("report_file" + str(datetime.now()) + ".csv", sep=";", encoding="utf-8")
 driver.close()
 # with open(
 #     "report_file.txt", "w", encoding="utf-8"
